@@ -6,46 +6,26 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 // Verifica se o arquivo foi enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
-    $uploadDir = __DIR__ . '/uploads/'; // Diretório onde os arquivos serão armazenados
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0777, true); // Cria o diretório, se não existir
-    }
+    // Cria o gerenciador de imagens com o driver GD
+    $manager = new ImageManager(new Driver());
 
-    $uploadedFile = $uploadDir . basename($_FILES['image']['name']);
+    // Lê a imagem diretamente do fluxo de entrada temporário
+    $image = $manager->read($_FILES['image']['tmp_name']);
 
-    // Move o arquivo enviado para o diretório de uploads
-    if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadedFile)) {
-        // Cria o gerenciador de imagens com o driver GD
-        $manager = new ImageManager(new Driver());
+    // Redimensiona a imagem proporcionalmente para largura de 900px
+    $image->scale(width: 900);
 
-        // Lê a imagem enviada pelo usuário
-        $image = $manager->read($uploadedFile);
+    // Lê o watermark
+    $imageW = $manager->read('logo1.png');
+    $imageW->scale(width: 200);
+    $imageW->resize(100, 100)->brightness(10);
 
-        // Redimensiona a imagem proporcionalmente para largura de 900px
-        $image->scale(width: 900);
+    // Insere o watermark na imagem
+    $image->place($imageW, 'bottom-right', 10, 10, 25);
 
-        // Lê o watermark
-        $imageW = $manager->read('logo1.png');
-        $imageW->scale(width: 200);
-        $imageW->resize(100, 100)->brightness(10);
-
-        // Insere o watermark na imagem
-        $image->place($imageW, 'bottom-right', 10, 10, 25);
-
-        // Salva a imagem modificada
-        $outputFile = $uploadDir . 'foo.png';
-        $image->toPng()->save($outputFile);
-
-        // Exibe a imagem final no navegador
-        header('Content-Type: image/png');
-        readfile($outputFile);
-
-        // Remove os arquivos temporários (opcional)
-        unlink($uploadedFile);
-        unlink($outputFile);
-    } else {
-        echo "Erro ao enviar o arquivo.";
-    }
+    // Exibe a imagem final diretamente no navegador
+    header('Content-Type: image/png');
+    echo $image->toPng(); // Converte a imagem para PNG e envia como resposta
 } else {
     // Formulário HTML para envio de imagem
     echo '
