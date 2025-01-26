@@ -1,0 +1,18 @@
+{
+    "name": "c4osx/novo",
+    "autoload": {
+        "psr-4": {
+            "C4osx\\Novo\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "caosdprs",
+            "email": "caosdp@gmail.com"
+        }
+    ],
+    "require": {
+        "monolog/monolog": "^3.8",
+        "intervention/image": "2.7"
+    }
+}
