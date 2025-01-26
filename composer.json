@@ -13,6 +13,6 @@
     ],
     "require": {
         "monolog/monolog": "^3.8",
-        "intervention/image": "2.7"
+        "intervention/image": "3"
     }
 }
